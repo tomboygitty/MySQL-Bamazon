@@ -1,0 +1,25 @@
+{
+  "name": "MySQL-Bamazon",
+  "version": "1.0.0",
+  "description": "Node.js CLI fake store inventory using MySQL",
+  "main": "bamazonCustomer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tomboygitty/MySQL-Bamazon.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tomboygitty/MySQL-Bamazon/issues"
+  },
+  "homepage": "https://github.com/tomboygitty/MySQL-Bamazon#readme",
+  "dependencies": {
+    "inquirer": "^7.0.0",
+    "mysql": "^2.17.1"
+  },
+  "devDependencies": {}
+}
