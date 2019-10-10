@@ -54,10 +54,9 @@ function ask() {
         }
     })
     .then(function(answer1) {
-        var id = answer1;
-        if (id < 1 || id > 10) {
+        if (answer1.id < 1 || answer1.id > 10) {
             console.log("Please give a proper input.\n");
-            ask();
+            runStore();
         }
         else {
             inquirer.prompt({
@@ -73,15 +72,15 @@ function ask() {
             })
             .then(function(answer2) {
                 connection.query(
-                    "SELECT * FROM products WHERE ?", { item_id: id }, function(err, res) {
+                    "SELECT * FROM products WHERE ?", { item_id: answer1.id }, function(err, res) {
                         if (err) throw err;
                         else {
-                            if (res.stock_quantity < answer2) {
-                                console.log("Insufficient quantity. Please order an appropriate amount.");
-                                ask();
+                            if (res[0].stock_quantity < parseInt(answer2.quantity)) {
+                                console.log("Insufficient quantity. Please order an appropriate amount.\n");
+                                runStore();
                             }
                             else {
-                                
+                                connection.end();
                             }
                         }
                     }
