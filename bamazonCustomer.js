@@ -21,23 +21,19 @@ connection.connect(function(err) {
 });
 
 function runStore() {
-    display();
-    ask();
-};
-
-function display() {
     connection.query(
-        "SELECT item_id, item_name, price, stock_quantity FROM products;",
+        "SELECT item_id, item_name, price FROM products;",
         function(err, res) {
             if (err) throw err;
             else {
                 for (i = 0; i < res.length; i++) {
-                    console.log(res[i].item_id + ") " + res[i].item_name + " | " + res[i].price + " | " + res[i].stock_quantity);
+                    console.log(res[i].item_id + ") " + res[i].item_name + " | $" + res[i].price);
                 }
-                console.log("\n");
+                console.log("\n0) Exit\n");
             }
         }
     )
+    ask();
 };
 
 function ask() {
@@ -54,9 +50,12 @@ function ask() {
         }
     })
     .then(function(answer1) {
-        if (answer1.id < 1 || answer1.id > 10) {
-            console.log("Please give a proper input.\n");
+        if (answer1.id < 0 || answer1.id > 10) {
+            console.log("\nPlease give a proper input.\n");
             runStore();
+        }
+        else if (answer1.id == 0) {
+            connection.end();
         }
         else {
             inquirer.prompt({
@@ -76,11 +75,27 @@ function ask() {
                         if (err) throw err;
                         else {
                             if (res[0].stock_quantity < parseInt(answer2.quantity)) {
-                                console.log("Insufficient quantity. Please order an appropriate amount.\n");
+                                console.log("\nInsufficient quantity. Please order an appropriate amount.\n");
                                 runStore();
                             }
                             else {
-                                connection.end();
+                                var total = parseInt(answer2.quantity) * res[0].price;
+                                connection.query(
+                                    "UPDATE products SET ? WHERE ?",
+                                    [   
+                                        { stock_quantity: res[0].stock_quantity - parseInt(answer2.quantity)
+                                        },
+                                        { item_id: answer1.id
+                                        }
+                                    ],
+                                    function(err, res) {
+                                        if (err) throw err;
+                                        else {
+                                            console.log("\nThe total cost for your order is $" + total + ".\n\nWould you like to order more?\n");
+                                        }
+                                    }
+                                );
+                                runStore();
                             }
                         }
                     }
