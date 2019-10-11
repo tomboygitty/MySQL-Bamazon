@@ -11,4 +11,15 @@ VALUES ('Toilet plunger', 'Bath', 14.99, 100),
 ('Toaster Oven', 'Kitchen', 89.99, 50),
 ('Pack of paper towels', 'Paper Products', 14.99, 75);
 
+INSERT INTO departments (department_name, over_head_costs)
+VALUES ('Kitchen', 1000),
+('Bath', 800),
+('Electronics', 4000),
+('Books', 600),
+('Entertainment', 950),
+('Paper Products', 500),
+('Groceries', 1000);
+
+
 SELECT * FROM products;
+SELECT * FROM departments;

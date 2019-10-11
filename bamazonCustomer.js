@@ -83,7 +83,7 @@ function ask() {
                                 connection.query(
                                     "UPDATE products SET ? WHERE ?",
                                     [   
-                                        { stock_quantity: res[0].stock_quantity - parseInt(answer2.quantity)
+                                        { stock_quantity: res[0].stock_quantity - parseInt(answer2.quantity), product_sales: total
                                         },
                                         { item_id: answer1.id
                                         }
