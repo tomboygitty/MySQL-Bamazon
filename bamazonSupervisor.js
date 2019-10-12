@@ -1,5 +1,6 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
+var table = require("console.table");
 
 var connection = mysql.createConnection({
   host: "localhost",
@@ -11,7 +12,7 @@ var connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: "donkey",
+  password: "",
   database: "bamazon"
 });
 
@@ -45,7 +46,7 @@ function ask() {
             case "Exit":
               connection.end();
               break;
-            }
+        }
     });
 };
 
@@ -62,10 +63,10 @@ function viewSales() {
                     }
                 }
                 console.table(res);
+                ask();
             }
         }
     );
-    ask();
 };
 
 function createDept() {

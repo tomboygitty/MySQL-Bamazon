@@ -11,7 +11,7 @@ var connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: "donkey",
+  password: "",
   database: "bamazon"
 });
 
@@ -30,10 +30,10 @@ function runStore() {
                     console.log(res[i].item_id + ") " + res[i].item_name + " | $" + res[i].price);
                 }
                 console.log("\n0) Exit\n");
+                ask();
             }
         }
     )
-    ask();
 };
 
 function ask() {
@@ -76,7 +76,7 @@ function ask() {
                         else {
                             if (res[0].stock_quantity < parseInt(answer2.quantity)) {
                                 console.log("\nInsufficient quantity. Please order an appropriate amount.\n");
-                                runStore();
+                                runStore(ask);
                             }
                             else {
                                 var total = parseInt(answer2.quantity) * res[0].price;
@@ -95,7 +95,7 @@ function ask() {
                                         }
                                     }
                                 );
-                                runStore();
+                                runStore(ask);
                             }
                         }
                     }

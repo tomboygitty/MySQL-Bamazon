@@ -11,7 +11,7 @@ var connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: "donkey",
+  password: "",
   database: "bamazon"
 });
 
@@ -68,10 +68,10 @@ function viewProducts() {
                 for (i = 0; i < res.length; i++) {
                     console.log(res[i].item_id + ") " + res[i].item_name + " | $" + res[i].price + " | " + res[i].stock_quantity);
                 }
+                ask();
             }
         }
     );
-    ask();
 };
 
 function lowInventory() {
@@ -85,10 +85,10 @@ function lowInventory() {
                     console.log(res[i].item_name + " | " + res[i].stock_quantity);
                 }
                 console.log("\n");
+                ask();
             }
         }
     );
-    ask();
 };
 
 function addInventory() {
@@ -102,49 +102,48 @@ function addInventory() {
                     quants.push(parseInt(res[i].stock_quantity));
                 }
                 console.log("\n");
+                inquirer.prompt({
+                    name: "id",
+                    type: "input",
+                    message: "Please give the ID of the item you want to add quantity to:",
+                    validate: function(value) {
+                        if (isNaN(value) === false) {
+                            return true;
+                        }
+                        return false;
+                    }
+                }).then(function(answer1) {
+                    if (answer1.id < 0 || answer1.id > 10) {
+                        console.log("\nPlease give a proper input.\n");
+                        ask();
+                    }
+                    else {
+                        inquirer.prompt({
+                            name: "quantity",
+                            type: "input",
+                            message: "Please give the quantity you want to add:",
+                            validate: function(value) {
+                                if (isNaN(value) === false) {
+                                    return true;
+                                }
+                                return false;
+                            }
+                        }).then(function(answer2) {
+                            connection.query(
+                                "UPDATE products SET ? WHERE ?", [{ stock_quantity: parseInt(answer2.quantity) + quants[answer1.id-1] }, { item_id: answer1.id }], function (err, res) {
+                                    if (err) throw err;
+                                    else {
+                                        console.log("\nQuantity updated!\n");
+                                        ask();
+                                    }
+                                }
+                            );
+                        });
+                    }
+                });
             }
         }
     );
-    inquirer.prompt({
-        name: "id",
-        type: "input",
-        message: "Please give the ID of the item you want to add quantity to:",
-        validate: function(value) {
-            if (isNaN(value) === false) {
-                return true;
-            }
-            return false;
-        }
-    }).then(function(answer1) {
-        if (answer1.id < 0 || answer1.id > 10) {
-            console.log("\nPlease give a proper input.\n");
-            ask();
-        }
-        else {
-            inquirer.prompt({
-                name: "quantity",
-                type: "input",
-                message: "Please give the quantity you want to add:",
-                validate: function(value) {
-                    if (isNaN(value) === false) {
-                        return true;
-                    }
-                    return false;
-                }
-            }).then(function(answer2) {
-                connection.query(
-                    "UPDATE products SET ? WHERE ?", { stock_quantity: parseInt(answer2.quantity) + quants[answer1.id-1], item_id: answer1.id }, function (err, res) {
-                        if (err) throw err;
-                        else {
-                            console.log(res);
-                            console.log("\nQuantity updated!\n");
-                        }
-                    }
-                );
-            });
-        }
-    });
-    ask();
 };
 
 function addProduct() {
