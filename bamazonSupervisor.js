@@ -1,6 +1,5 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
-var table = require("table");
 
 var connection = mysql.createConnection({
   host: "localhost",
@@ -51,14 +50,18 @@ function ask() {
 };
 
 function viewSales() {
-    var query = "SELECT department_id, departments.department_name, over_head_costs, SUM (product_sales) product_sales FROM departments INNER JOIN products ON products.department_name = departments.department_name GROUP BY department_id ORDER BY department_id;";
+    var query = "SELECT department_id, departments.department_name, over_head_costs, SUM (product_sales) product_sales FROM departments LEFT JOIN products ON products.department_name = departments.department_name GROUP BY department_id ORDER BY department_id;";
     connection.query(
-        query, function(err, rows, fields) {
+        query, function(err, res) {
             if (err) throw err;
             else {
-                console.log(
-                    table([fields.map(f => chalk.bold(f.name))].concat(rows.map(r => r.map(c => util.inspect(c, { colors: true })))))
-                  );
+                for (i = 0; i < res.length; i++) {
+                    res[i].total_profit = res[i].product_sales - res[i].over_head_costs;
+                    if (res[i].product_sales === null) {
+                        res[i].product_sales = 0;
+                    }
+                }
+                console.table(res);
             }
         }
     );
@@ -66,5 +69,39 @@ function viewSales() {
 };
 
 function createDept() {
-
+    console.log("\nPlease enter the information of the department you want to add:\n");
+    inquirer.prompt(
+        [
+            {   name: "name",
+                type: "input",
+                message: "Name of the department:",
+            },
+            {   name: "overhead",
+                type: "input",
+                message: "Total overhead costs of the department:",
+                validate: function(value) {
+                    if (isNaN(value) === false) {
+                        return true;
+                    }
+                    return false;
+                }
+            }
+        ]
+    ).then(function(answer) {
+        if (parseInt(answer.overhead < 0.01)) {
+            console.log("\nPlease enter a valid overhead cost for the department.\n");
+            createDept();
+        }
+        else {
+            connection.query(
+                "INSERT INTO departments (department_name, over_head_costs) VALUES ('" + answer.name + "', " + answer.overhead + ");", function(err, res) {
+                    if (err) throw err;
+                    else {
+                        console.log("\nDepartment added successfully!\n");
+                        ask();
+                    }
+                }
+            )
+        }
+    });
 };
