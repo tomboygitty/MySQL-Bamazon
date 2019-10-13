@@ -12,7 +12,7 @@ var connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: "",
+  password: "donkey",
   database: "bamazon"
 });
 
@@ -51,16 +51,26 @@ function ask() {
 };
 
 function viewSales() {
-    var query = "SELECT department_id, departments.department_name, over_head_costs, SUM (product_sales) product_sales FROM departments LEFT JOIN products ON products.department_name = departments.department_name GROUP BY department_id ORDER BY department_id;";
+    var query = "SELECT department_id, d.department_name, over_head_costs, SUM(product_sales) product_sales FROM departments d LEFT OUTER JOIN products p ON p.department_name = d.department_name UNION SELECT NULL AS department_id, department_name, NULL AS over_head_costs, SUM(product_sales) product_sales FROM products WHERE products.department_name NOT IN (SELECT department_name FROM departments) GROUP BY department_name ORDER BY -department_id DESC;";
     connection.query(
         query, function(err, res) {
             if (err) throw err;
             else {
                 for (i = 0; i < res.length; i++) {
-                    res[i].total_profit = res[i].product_sales - res[i].over_head_costs;
+                    if (res[i].department_id === null) {
+                        res[i].department_id = 'N/A';
+                    }
+                    if (res[i].over_head_costs === null) {
+                        res[i].over_head_costs = 'N/A';
+                        res[i].total_profit = 'N/A';
+                    }
+                    else {
+                        res[i].total_profit = (res[i].product_sales - res[i].over_head_costs).toFixed(2);
+                    }
                     if (res[i].product_sales === null) {
                         res[i].product_sales = 0;
                     }
+                    res[i].product_sales = res[i].product_sales.toFixed(2);
                 }
                 console.table(res);
                 ask();

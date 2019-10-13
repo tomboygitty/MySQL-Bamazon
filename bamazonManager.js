@@ -1,5 +1,6 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
+var numItems;
 
 var connection = mysql.createConnection({
   host: "localhost",
@@ -11,7 +12,7 @@ var connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: "",
+  password: "donkey",
   database: "bamazon"
 });
 
@@ -68,6 +69,7 @@ function viewProducts() {
                 for (i = 0; i < res.length; i++) {
                     console.log(res[i].item_id + ") " + res[i].item_name + " | $" + res[i].price + " | " + res[i].stock_quantity);
                 }
+                console.log("\n");
                 ask();
             }
         }
@@ -80,12 +82,17 @@ function lowInventory() {
         "SELECT item_name, stock_quantity FROM products WHERE stock_quantity < 5", function (err, res) {
             if (err) throw err;
             else {
-                console.log("\n");
-                for (i = 0; i < res.length; i++) {
-                    console.log(res[i].item_name + " | " + res[i].stock_quantity);
+                if (res.length == 0) {
+                    console.log("None.\n");
+                    ask();
                 }
-                console.log("\n");
-                ask();
+                else {
+                    for (i = 0; i < res.length; i++) {
+                        console.log(res[i].item_name + " | " + res[i].stock_quantity);
+                    }
+                    console.log("\n");
+                    ask();
+                }
             }
         }
     );
@@ -97,7 +104,8 @@ function addInventory() {
         "SELECT item_id, item_name, stock_quantity FROM products", function (err, res) {
             if (err) throw err;
             else {
-                for (i = 0; i < res.length; i++) {
+                numItems = res.length;
+                for (i = 0; i < numItems; i++) {
                     console.log(res[i].item_id + " | " + res[i].item_name + " | " + res[i].stock_quantity);
                     quants.push(parseInt(res[i].stock_quantity));
                 }
@@ -113,7 +121,7 @@ function addInventory() {
                         return false;
                     }
                 }).then(function(answer1) {
-                    if (answer1.id < 0 || answer1.id > 10) {
+                    if (answer1.id < 0 || answer1.id > numItems) {
                         console.log("\nPlease give a proper input.\n");
                         ask();
                     }

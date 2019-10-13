@@ -1,5 +1,6 @@
 var mysql = require("mysql");
 var inquirer = require("inquirer");
+var numItems;
 
 var connection = mysql.createConnection({
   host: "localhost",
@@ -11,7 +12,7 @@ var connection = mysql.createConnection({
   user: "root",
 
   // Your password
-  password: "",
+  password: "donkey",
   database: "bamazon"
 });
 
@@ -26,6 +27,7 @@ function runStore() {
         function(err, res) {
             if (err) throw err;
             else {
+                numItems = res.length;
                 for (i = 0; i < res.length; i++) {
                     console.log(res[i].item_id + ") " + res[i].item_name + " | $" + res[i].price);
                 }
@@ -50,7 +52,7 @@ function ask() {
         }
     })
     .then(function(answer1) {
-        if (answer1.id < 0 || answer1.id > 10) {
+        if (answer1.id < 0 || answer1.id > numItems) {
             console.log("\nPlease give a proper input.\n");
             runStore();
         }
@@ -75,7 +77,7 @@ function ask() {
                         if (err) throw err;
                         else {
                             if (res[0].stock_quantity < parseInt(answer2.quantity)) {
-                                console.log("\nInsufficient quantity. Please order an appropriate amount.\n");
+                                console.log("\nInsufficient quantity. Please order an smaller amount.\n");
                                 runStore(ask);
                             }
                             else {
@@ -91,7 +93,7 @@ function ask() {
                                     function(err, res) {
                                         if (err) throw err;
                                         else {
-                                            console.log("\nThe total cost for your order is $" + total + ".\n\nWould you like to order more?\n");
+                                            console.log("\nThe total cost for your order is $" + total.toFixed(2) + ".\n\nWould you like to order more?\n");
                                         }
                                     }
                                 );
